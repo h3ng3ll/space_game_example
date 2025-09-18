@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -5,12 +6,16 @@ public class NewMonoBehaviourScript : MonoBehaviour
 {
     public float playerSpeed = 2.0f;
 
+    public Transform laser;
+    private Transform _currentLaser = null;
     private float _currentSpeed = 0.0f;
 
     public List<KeyCode> upButton;
     public List<KeyCode> downButton;
     public List<KeyCode> leftButton;
     public List<KeyCode> rightButton;
+
+    public List<KeyCode> attackBtn;
 
     private Vector3 _lastMovement = new Vector3();
 
@@ -22,9 +27,49 @@ public class NewMonoBehaviourScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-      
         Movement();
         Rotation();
+        Attack();
+    }
+
+
+    void Attack()
+    {
+        if (IsAttacking() && _currentLaser == null)
+        {
+
+            Vector3 worldPos = Input.mousePosition;
+            worldPos = Camera.main.ScreenToWorldPoint(
+                worldPos
+            );
+            var dx = this.transform.position.x - worldPos.x;
+            var dy = transform.position.y - worldPos.y;
+
+            float angle = Mathf.Atan2(dy, dx) * Mathf.Rad2Deg;
+
+            var rot = Quaternion.Euler(
+                new Vector3(0, 0, angle + 90)
+            );
+            
+            _currentLaser = Instantiate(
+                laser,
+                transform.position,
+                rot
+            );
+        }
+    }
+
+    bool IsAttacking()
+    {
+        foreach (var key in attackBtn)
+        {
+            if (Input.GetKey(key))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void Rotation()
